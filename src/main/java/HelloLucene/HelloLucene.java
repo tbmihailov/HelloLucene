@@ -38,28 +38,24 @@ public class HelloLucene {
 	public static void main(String[] args) throws IOException, ParseException {
 		// 0. Specify the analyzer for tokenizing text.
 		// The same analyzer should be used for indexing and searching
-		StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
+		StandardAnalyzer analyzer = new StandardAnalyzer();
 
 		// Add analyzer with filter pipeline
+
 		/*List<String> stopWordsEnglish = new ArrayList<String>();
 		stopWordsEnglish.add("in");
 		stopWordsEnglish.add("for");
 		stopWordsEnglish.add("at");
 		stopWordsEnglish.add("and");
-		stopWordsEnglish.add("of");
-		// .....
-		final CharArraySet stopWords = new CharArraySet(Version.LUCENE_40,
-				stopWordsEnglish, true);
+		stopWordsEnglish.add("of"); // .....
+		final CharArraySet stopWords = new CharArraySet(stopWordsEnglish, true);
 
 		Analyzer analyzer = new Analyzer() {
 			@Override
-			protected TokenStreamComponents createComponents(String fieldName,
-					Reader reader) {
-				Tokenizer source = new LetterTokenizer(Version.LUCENE_40,
-						reader);
-				TokenStream filter = new LowerCaseFilter(Version.LUCENE_40,
-						source);
-				filter = new StopFilter(Version.LUCENE_40, filter, stopWords);
+			protected TokenStreamComponents createComponents(String fieldName) {
+				Tokenizer source = new LetterTokenizer();
+				TokenStream filter = new LowerCaseFilter(source);
+				filter = new StopFilter(filter, stopWords);
 				filter = new PorterStemFilter(filter);
 				return new TokenStreamComponents(source, filter);
 			}
@@ -68,8 +64,7 @@ public class HelloLucene {
 		// 1. create the index
 		Directory index = new RAMDirectory();
 
-		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40,
-				analyzer);
+		IndexWriterConfig config = new IndexWriterConfig(analyzer);
 
 		IndexWriter w = new IndexWriter(index, config);
 		addDoc(w, "Lucene in Action", "193398817");
@@ -79,14 +74,13 @@ public class HelloLucene {
 		w.close();
 
 		// 2. query
-		String querystr = args.length > 0 ? args[0] : "Lucene";
+		String querystr = args.length > 0 ? args[0] : "Manage";
 
 		// the "title" arg specifies the default field to use
 		// when no field is explicitly specified in the query.
 		Query q = null;
 		try {
-			q = new QueryParser(Version.LUCENE_40, "title", analyzer)
-					.parse(querystr);
+			q = new QueryParser("title", analyzer).parse(querystr);
 		} catch (org.apache.lucene.queryparser.classic.ParseException e) {
 			e.printStackTrace();
 		}
@@ -95,8 +89,8 @@ public class HelloLucene {
 		int hitsPerPage = 10;
 		IndexReader reader = DirectoryReader.open(index);
 		IndexSearcher searcher = new IndexSearcher(reader);
-		TopScoreDocCollector collector = TopScoreDocCollector.create(
-				hitsPerPage, true);
+		TopScoreDocCollector collector = TopScoreDocCollector
+				.create(hitsPerPage);
 		searcher.search(q, collector);
 		ScoreDoc[] hits = collector.topDocs().scoreDocs;
 
