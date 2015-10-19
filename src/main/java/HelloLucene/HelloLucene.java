@@ -42,24 +42,21 @@ public class HelloLucene {
 
 		// Add analyzer with filter pipeline
 
-		/*List<String> stopWordsEnglish = new ArrayList<String>();
-		stopWordsEnglish.add("in");
-		stopWordsEnglish.add("for");
-		stopWordsEnglish.add("at");
-		stopWordsEnglish.add("and");
-		stopWordsEnglish.add("of"); // .....
-		final CharArraySet stopWords = new CharArraySet(stopWordsEnglish, true);
-
-		Analyzer analyzer = new Analyzer() {
-			@Override
-			protected TokenStreamComponents createComponents(String fieldName) {
-				Tokenizer source = new LetterTokenizer();
-				TokenStream filter = new LowerCaseFilter(source);
-				filter = new StopFilter(filter, stopWords);
-				filter = new PorterStemFilter(filter);
-				return new TokenStreamComponents(source, filter);
-			}
-		};*/
+		/*
+		 * List<String> stopWordsEnglish = new ArrayList<String>();
+		 * stopWordsEnglish.add("in"); stopWordsEnglish.add("for");
+		 * stopWordsEnglish.add("at"); stopWordsEnglish.add("and");
+		 * stopWordsEnglish.add("of"); // ..... final CharArraySet stopWords =
+		 * new CharArraySet(stopWordsEnglish, true);
+		 * 
+		 * Analyzer analyzer = new Analyzer() {
+		 * 
+		 * @Override protected TokenStreamComponents createComponents(String
+		 * fieldName) { Tokenizer source = new LetterTokenizer(); TokenStream
+		 * filter = new LowerCaseFilter(source); filter = new StopFilter(filter,
+		 * stopWords); filter = new PorterStemFilter(filter); return new
+		 * TokenStreamComponents(source, filter); } };
+		 */
 
 		// 1. create the index
 		Directory index = new RAMDirectory();
@@ -73,8 +70,9 @@ public class HelloLucene {
 		addDoc(w, "The Art of Computer Science", "9900333X");
 		w.close();
 
+		String term = "Managing";
 		// 2. query
-		String querystr = args.length > 0 ? args[0] : "Manage";
+		String querystr = args.length > 0 ? args[0] : "Managing";
 
 		// the "title" arg specifies the default field to use
 		// when no field is explicitly specified in the query.
@@ -101,6 +99,9 @@ public class HelloLucene {
 			Document d = searcher.doc(docId);
 			System.out.println((i + 1) + ". " + hits[i].score + "\t"
 					+ d.get("isbn") + "\t" + d.get("title"));
+			double tfIdf = TFIDFTools.getTFIDF(term, docId, "title", reader,
+					searcher);
+			System.out.println(term + " tfidf = " + tfIdf);
 		}
 
 		// reader can only be closed when there
